@@ -101,11 +101,12 @@ def get_listing_information(listing_id):
         #regex for the policy numbers
         pattern1 = re.compile(r'20\d{2}-00\d{4}STR')
         pattern2 = re.compile(r'STR-000\d{4}')
+        pattern3 = re.compile(r'\d+')
         #check to see if pending
         if 'Pending' in policy_number or 'pending' in policy_number:
             policy_number = "Pending"
         #check to see if its actually a policy number
-        elif pattern1.search(policy_number) or pattern2.search(policy_number):
+        elif pattern1.search(policy_number) or pattern2.search(policy_number)  or pattern3.search(policy_number):
             policy_number = policy_number
         #otherwise it is exempt?
         else: 
@@ -203,7 +204,17 @@ def write_csv(data, filename):
 
     This function should not return anything.
     """
-    pass
+    with open (filename, 'w', newline = '') as new_file:
+       col_names = ["Listing Title", "Cost", "Listing ID", "Policy Number", "Place Type", "Number of Bedrooms"]
+       csv_writer = csv.writer(new_file)
+       csv_writer.writerow(col_names)
+ 
+       sorted_data = sorted(data, key = lambda x: x[1])
+ 
+       for item in sorted_data:
+           csv_writer.writerow([item[0],item[1],item[2],item[3],item[4],item[5]])
+  
+    return()
 
 
 def check_policy_numbers(data):
@@ -225,7 +236,29 @@ def check_policy_numbers(data):
     ]
 
     """
-    pass
+   
+    invalid = []
+
+    pattern1 = re.compile(r'20\d{2}-00\d{4}STR')
+    pattern2 = re.compile(r'STR-000\d{4}')
+
+    count = 0
+
+    for tup in data:
+        #print (tup[3])
+        if pattern1.search(tup[3]) or pattern2.search(tup[3]):
+            count = 1
+        elif tup[3] == 'Pending':
+            count = 1
+        elif tup[3] == 'Exempt':
+            count = 1
+        else:
+            count = 0
+        if count == 0: 
+            invalid.append(tup[2])
+
+    print (invalid)
+    return invalid 
 
 
 def extra_credit(listing_id):
@@ -256,10 +289,11 @@ class TestCases(unittest.TestCase):
         # check that the variable you saved after calling the function is a list
         self.assertEqual(type(listings), list)
         # check that each item in the list is a tuple
-
+        
         # check that the first title, cost, and listing id tuple is correct (open the search results html and find it)
-
+        
         # check that the last title is correct (open the search results html and find it)
+        
         pass
 
     def test_get_listing_information(self):
@@ -331,20 +365,20 @@ class TestCases(unittest.TestCase):
 
         pass
 
-    # def test_check_policy_numbers(self):
-    #     # call get_detailed_listing_database on "html_files/mission_district_search_results.html"
-    #     # and save the result to a variable
-    #     detailed_database = get_detailed_listing_database("html_files/mission_district_search_results.html")
-    #     # call check_policy_numbers on the variable created above and save the result as a variable
-    #     invalid_listings = check_policy_numbers(detailed_database)
-    #     # check that the return value is a list
-    #     self.assertEqual(type(invalid_listings), list)
-    #     # check that there is exactly one element in the string
-
-    #     # check that the element in the list is a string
-
-    #     # check that the first element in the list is '16204265'
-    #     pass
+    def test_check_policy_numbers(self):
+        # call get_detailed_listing_database on "html_files/mission_district_search_results.html"
+        # and save the result to a variable
+        detailed_database = get_detailed_listing_database("html_files/mission_district_search_results.html")
+        # call check_policy_numbers on the variable created above and save the result as a variable
+        invalid_listings = check_policy_numbers(detailed_database)
+        # check that the return value is a list
+        self.assertEqual(type(invalid_listings), list)
+        # check that there is exactly one element in the string
+        self.assertEqual(len(invalid_listings), 1)
+        # check that the element in the list is a string
+        self.assertEqual(type(invalid_listings[0]), str)
+        # check that the first element in the list is '16204265'
+        self.assertEqual(invalid_listings[0],'16204265')
 
 
 if __name__ == '__main__':
