@@ -404,10 +404,8 @@ class TestCases(unittest.TestCase):
         self.assertEqual(invalid_listings[0],'16204265')
 
     def test_extra_credit(self):
-       
         id = "1944564"
         id2 = "16204265"
-
         self.assertEqual(extra_credit(id), True)
         self.assertEqual(extra_credit(id2), False)
 
