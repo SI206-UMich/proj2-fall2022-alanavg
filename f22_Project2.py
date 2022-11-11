@@ -1,4 +1,4 @@
-# Your name: Alana Vang
+# Your name: Alana Vang 
 # Your student id: 53421201
 # Your email: alanav@umich.edu
 # List who you worked with on this homework: Jessica Cho jesscho@umich.edu
@@ -298,11 +298,6 @@ def extra_credit(listing_id):
         return False
     elif len(year_check) == 0:
         return True
-
-
-
-
-
 
     
 
