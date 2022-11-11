@@ -1,6 +1,7 @@
-#
-
-
+# Your name: Alana Vang
+# Your student id: 53421201
+# Your email: alanav@umich.edu
+# List who you worked with on this homework: Jessica Cho jesscho@umich.edu
 
 from xml.sax import parseString
 from bs4 import BeautifulSoup
@@ -275,26 +276,53 @@ def extra_credit(listing_id):
     gone over their 90 day limit, else return True, indicating the lister has
     never gone over their limit.
     """
-    pass
+    name = 'listing_' + listing_id + "_reviews"
+    filename = '%s.html' % name
+    path = r"html_files/" + filename
+    with open(path, "r") as fh:
+        soup = BeautifulSoup(fh, 'html.parser')
+    year_list = []
+    li = soup.find_all('li', class_='_1f1oir5')
+    
+    pattern = r'[A-z]\s(\d{4})'
+    year_dict = {}
+    for index in li:
+        date = index.text
+        year = re.findall(pattern, date)
+        year_list.append(year)
+    for x in year_list:
+        for i in x:
+            year_dict[i] = year_dict.get(i, 0) + 1
+    year_check = dict((k, v) for k, v in year_dict.items() if v > 90)
+    if len(year_check) > 1:
+        return False
+    elif len(year_check) == 0:
+        return True
 
+
+
+
+
+
+    
 
 class TestCases(unittest.TestCase):
 
     def test_get_listings_from_search_results(self):
-        # call get_listings_from_search_results("html_files/mission_district_search_results.html")
-        # and save to a local variable
-        listings = get_listings_from_search_results("html_files/mission_district_search_results.html")
-        # check that the number of listings extracted is correct (20 listings)
-        self.assertEqual(len(listings), 20)
-        # check that the variable you saved after calling the function is a list
-        self.assertEqual(type(listings), list)
-        # check that each item in the list is a tuple
-        
-        # check that the first title, cost, and listing id tuple is correct (open the search results html and find it)
-        
-        # check that the last title is correct (open the search results html and find it)
-        
-        pass
+      # call get_listings_from_search_results("html_files/mission_district_search_results.html")
+       # and save to a local variable
+       listings = get_listings_from_search_results("html_files/mission_district_search_results.html")
+       # check that the number of listings extracted is correct (20 listings)
+       self.assertEqual(len(listings), 20)
+       # check that the variable you saved after calling the function is a list
+       self.assertEqual(type(listings), list)
+       # check that each item in the list is a tuple
+       for tup in listings:
+           self.assertEqual(type(tup), tuple)
+       # check that the first title, cost, and listing id tuple is correct (open the search results html and find it)
+       self.assertEqual((listings[0][0],listings[0][1],listings[0][2]),('Loft in Mission District',210,'1944564'))
+       # check that the last title is correct (open the search results html and find it)
+       self.assertEqual((listings[19][0]), "Guest suite in Mission District")
 
     def test_get_listing_information(self):
         html_list = ["1623609",
@@ -344,26 +372,26 @@ class TestCases(unittest.TestCase):
        
 
     def test_write_csv(self):
-        # call get_detailed_listing_database on "html_files/mission_district_search_results.html"
-        # and save the result to a variable
-        detailed_database = get_detailed_listing_database("html_files/mission_district_search_results.html")
-        # call write csv on the variable you saved
-        write_csv(detailed_database, "test.csv")
-        # read in the csv that you wrote
-        csv_lines = []
-        with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'test.csv'), 'r') as f:
-            csv_reader = csv.reader(f)
-            for i in csv_reader:
-                csv_lines.append(i)
-        # check that there are 21 lines in the csv
-        self.assertEqual(len(csv_lines), 21)
-        # check that the header row is correct
+       # call get_detailed_listing_database on "html_files/mission_district_search_results.html"
+       # and save the result to a variable
+       detailed_database = get_detailed_listing_database("html_files/mission_district_search_results.html")
+       # call write csv on the variable you saved
+       write_csv(detailed_database, "test.csv")
+       # read in the csv that you wrote
+       csv_lines = []
+       with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'test.csv'), 'r') as f:
+           csv_reader = csv.reader(f)
+           for i in csv_reader:
+               csv_lines.append(i)
+       # check that there are 21 lines in the csv
+       self.assertEqual(len(csv_lines), 21)
+       # check that the header row is correct
+       self.assertEqual(csv_lines[0], ["Listing Title", "Cost", "Listing ID", "Policy Number", "Place Type", "Number of Bedrooms"])
+       # check that the next row is Private room in Mission District,82,51027324,Pending,Private Room,1
+       self.assertEqual(csv_lines[1], ['Private room in Mission District','82','51027324','Pending','Private Room','1'])
+       # check that the last row is Apartment in Mission District,399,28668414,Pending,Entire Room,2
+       self.assertEqual(csv_lines[20], ["Apartment in Mission District","399","28668414","Pending","Entire Room","2"])
 
-        # check that the next row is Private room in Mission District,82,51027324,Pending,Private Room,1
-
-        # check that the last row is Apartment in Mission District,399,28668414,Pending,Entire Room,2
-
-        pass
 
     def test_check_policy_numbers(self):
         # call get_detailed_listing_database on "html_files/mission_district_search_results.html"
@@ -379,6 +407,15 @@ class TestCases(unittest.TestCase):
         self.assertEqual(type(invalid_listings[0]), str)
         # check that the first element in the list is '16204265'
         self.assertEqual(invalid_listings[0],'16204265')
+
+    def test_extra_credit(self):
+       
+        id = "1944564"
+        id2 = "16204265"
+
+        self.assertEqual(extra_credit(id), True)
+        self.assertEqual(extra_credit(id2), False)
+
 
 
 if __name__ == '__main__':
